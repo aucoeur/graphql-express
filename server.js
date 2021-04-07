@@ -10,10 +10,10 @@ enum MealTime {
   dinner
 }
 
-enum Region {
-  asia
-  africa
-  mediterranean
+enum TimeUnit {
+  hour
+  minute
+  second
 }
 
 type About {
@@ -35,6 +35,12 @@ type Pet {
   species: String!
 }
 
+type Time {
+  hour: Int!
+  minute: Int!
+  second: Int!
+}
+
 type Query {
   getAbout: About
   getMeal(time: MealTime!): Meal
@@ -42,6 +48,10 @@ type Query {
   allPets: [Pet!]!
   allGods: [God!]!
   getGod(index: Int!): God
+  getGodHead: God
+  getGodTail: God
+  getTime: Time
+  getRandom(range: Int!): Int
 }`)
 
 // Mock datatbase in this case:
@@ -53,7 +63,7 @@ const petList = [
 
 const godList = [
   { name: 'Dionysus', origin: 'Greek', domain: ['wine', 'fruitfulness', 'parties', 'festivals', 'madness', 'chaos', 'drunkenness', 'vegetation', 'ecstasy', 'theater'] },
-  { name: 'Kek', origin: 'Eygpt', domain: ['primordial darkness', 'chaos'] },
+  { name: 'Kek', origin: 'Egypt', domain: ['primordial darkness', 'chaos'] },
   { name: 'Âu Cơ', origin: 'Vietnam', domain: ['mountains', 'mother of Vietnamese civilization'] }
 ]
 
@@ -78,6 +88,22 @@ const root = {
   },
   allGods: () => {
     return godList
+  },
+  getGodHead: () => {
+    return godList[0]
+  },
+  getGodTail: () => {
+    return godList[godList.length - 1]
+  },
+  getRandom: ({range}) => {
+    return Math.floor((Math.random() * range) + 1)
+  },
+  getTime: () => {
+    const now = new Date(Date.now())
+    const hours = now.getHours()
+    const minutes = now.getMinutes()
+    const seconds = now.getSeconds()
+    return { hour: hours, minute: minutes, second: seconds }
   }
 }
 
