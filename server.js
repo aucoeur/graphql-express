@@ -20,6 +20,12 @@ type About {
   message: String!
 }
 
+type DiceRoll {
+  rolls: [Int!]!
+  sides: Int!
+  total: Int!
+}
+
 type God {
   name: String!
   origin: String!
@@ -52,6 +58,7 @@ type Query {
   getGodTail: God
   getTime: Time
   getRandom(range: Int!): Int
+  getRoll(sides: Int!, rolls: Int!): DiceRoll
 }`)
 
 // Mock datatbase in this case:
@@ -66,6 +73,11 @@ const godList = [
   { name: 'Kek', origin: 'Egypt', domain: ['primordial darkness', 'chaos'] },
   { name: 'Âu Cơ', origin: 'Vietnam', domain: ['mountains', 'mother of Vietnamese civilization'] }
 ]
+
+// Functions
+function random(range) {
+  return Math.floor((Math.random() * range) + 1)
+}
 
 // Resolver
 const root = {
@@ -96,7 +108,13 @@ const root = {
     return godList[godList.length - 1]
   },
   getRandom: ({range}) => {
-    return Math.floor((Math.random() * range) + 1)
+    return random(range)
+  },
+  getRoll: ({ sides, rolls }) => {
+    const rollArray = Array.from({length: rolls}, () => random(sides))
+    const total = rollArray.reduce((acc, current) => {
+      return acc + current }, 0)
+    return { rolls: rollArray, sides: sides, total: total}
   },
   getTime: () => {
     const now = new Date(Date.now())
