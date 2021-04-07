@@ -10,8 +10,20 @@ enum MealTime {
   dinner
 }
 
+enum Region {
+  asia
+  africa
+  mediterranean
+}
+
 type About {
   message: String!
+}
+
+type God {
+  name: String!
+  origin: String!
+  domain: [String!]!
 }
 
 type Meal {
@@ -28,6 +40,8 @@ type Query {
   getMeal(time: MealTime!): Meal
   getPet(id: Int!): Pet
   allPets: [Pet!]!
+  allGods: [God!]!
+  getGod(index: Int!): God
 }`)
 
 // Mock datatbase in this case:
@@ -35,6 +49,12 @@ const petList = [
     { name: 'Fluffy', species: 'Dog' },
     { name: 'Sassy', species: 'Cat' },
     { name: 'Goldberg', species: 'Frog' }
+]
+
+const godList = [
+  { name: 'Dionysus', origin: 'Greek', domain: ['wine', 'fruitfulness', 'parties', 'festivals', 'madness', 'chaos', 'drunkenness', 'vegetation', 'ecstasy', 'theater'] },
+  { name: 'Kek', origin: 'Eygpt', domain: ['primordial darkness', 'chaos'] },
+  { name: 'Âu Cơ', origin: 'Vietnam', domain: ['mountains', 'mother of Vietnamese civilization'] }
 ]
 
 // Resolver
@@ -52,6 +72,12 @@ const root = {
   },
   allPets: () => {
     return petList
+  },
+  getGod: ({index}) => {
+    return godList[index]
+  },
+  allGods: () => {
+    return godList
   }
 }
 
