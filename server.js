@@ -16,8 +16,18 @@ enum TimeUnit {
   second
 }
 
+enum Type {
+  pets
+  gods
+}
+
 type About {
   message: String!
+}
+
+type Count {
+  type: String!
+  count: Int!
 }
 
 type DiceRoll {
@@ -53,6 +63,7 @@ type Query {
   getPet(id: Int!): Pet
   allPets: [Pet!]!
   allGods: [God!]!
+  getCount(type: Type!): Count
   getGod(index: Int!): God
   getGodHead: God
   getGodTail: God
@@ -95,11 +106,15 @@ const root = {
   allPets: () => {
     return petList
   },
-  getGod: ({index}) => {
-    return godList[index]
-  },
   allGods: () => {
     return godList
+  },
+  getCount: ({type}) => {
+    const types = { pets: petList, gods: godList }
+    return { type: type , count: types[type].length }
+  },
+  getGod: ({index}) => {
+    return godList[index]
   },
   getGodHead: () => {
     return godList[0]
