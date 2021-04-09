@@ -10,6 +10,12 @@ enum MealTime {
   dinner
 }
 
+enum Region {
+  egypt
+  greece
+  vietnam
+}
+
 enum TimeUnit {
   hour
   minute
@@ -46,6 +52,10 @@ type Meal {
   description: String!
 }
 
+type Regions {
+  region: [String!]!
+}
+
 type Pet {
   name: String!
   species: String!
@@ -63,9 +73,12 @@ type Query {
   getPet(id: Int!): Pet
   allPets: [Pet!]!
   allGods: [God!]!
+  allRegions: Regions
   getCount(type: Type!): Count
   getGod(index: Int!): God
+  getGodByRegion(region: Region!): God
   getGodHead: God
+  getGodRange(start: Int!, count: Int!): [God!]!
   getGodTail: God
   getTime: Time
   getRandom(range: Int!): Int
@@ -85,6 +98,8 @@ const godList = [
   { name: 'Âu Cơ', origin: 'Vietnam', domain: ['mountains', 'mother of Vietnamese civilization'] }
 ]
 
+const types = { pets: petList, gods: godList }
+const regions = { egypt: 1, greece: 0, vietnam: 2 }
 // Functions
 function random(range) {
   return Math.floor((Math.random() * range) + 1)
@@ -109,15 +124,36 @@ const root = {
   allGods: () => {
     return godList
   },
+  allRegions: () => {
+    const regions = ["Egypt", "Greece","Vietnam" ]
+    return {region: regions}
+  },
   getCount: ({type}) => {
-    const types = { pets: petList, gods: godList }
     return { type: type , count: types[type].length }
   },
   getGod: ({index}) => {
     return godList[index]
   },
+  getGodByRegion:({region}) => {
+    return godList[regions[region]]
+  },
   getGodHead: () => {
     return godList[0]
+  },
+  getGodRange: ({start, count}) => {
+    let end;
+    switch (start) {
+      case 0:
+        end = count
+        break
+      case godList.length - 1:
+        end = undefined
+        break
+      default:
+        end = count + 1
+        break
+    }
+    return godList.slice(start,end)
   },
   getGodTail: () => {
     return godList[godList.length - 1]
