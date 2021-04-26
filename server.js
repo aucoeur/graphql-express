@@ -1,89 +1,7 @@
 const express = require('express');
 const { graphqlHTTP } = require('express-graphql');
-const { buildSchema } = require('graphql');
 
-// Schema
-const schema = buildSchema(`
-enum MealTime {
-  breakfast
-  lunch
-  dinner
-}
-
-enum Region {
-  egypt
-  greece
-  vietnam
-}
-
-enum TimeUnit {
-  hour
-  minute
-  second
-}
-
-enum Type {
-  pets
-  gods
-}
-
-type About {
-  message: String!
-}
-
-type Count {
-  type: String!
-  count: Int!
-}
-
-type DiceRoll {
-  rolls: [Int!]!
-  sides: Int!
-  total: Int!
-}
-
-type God {
-  name: String!
-  origin: String!
-  domain: [String!]!
-}
-
-type Meal {
-  description: String!
-}
-
-type Regions {
-  region: [String!]!
-}
-
-type Pet {
-  name: String!
-  species: String!
-}
-
-type Time {
-  hour: Int!
-  minute: Int!
-  second: Int!
-}
-
-type Query {
-  getAbout: About
-  getMeal(time: MealTime!): Meal
-  getPet(id: Int!): Pet
-  allPets: [Pet!]!
-  allGods: [God!]!
-  allRegions: Regions
-  getCount(type: Type!): Count
-  getGod(index: Int!): God
-  getGodByRegion(region: Region!): God
-  getGodHead: God
-  getGodRange(start: Int!, count: Int!): [God!]!
-  getGodTail: God
-  getTime: Time
-  getRandom(range: Int!): Int
-  getRoll(sides: Int!, rolls: Int!): DiceRoll
-}`)
+const schema = require('./schema');
 
 // Mock datatbase in this case:
 const petList = [
@@ -91,7 +9,14 @@ const petList = [
     { name: 'Sassy', species: 'Cat' },
     { name: 'Goldberg', species: 'Frog' }
 ]
-
+// {name: "Loki", origin: "Scandinavia", domain: ["mayhem", "mischief", "tricks", "fire"]}
+// mutation {
+//   addGod(name: "Loki", origin: "Scandinavia", domain: ["mayhem", "mischeif"]) {
+//     name
+//     origin
+//     domain
+//   }
+// }
 const godList = [
   { name: 'Dionysus', origin: 'Greek', domain: ['wine', 'fruitfulness', 'parties', 'festivals', 'madness', 'chaos', 'drunkenness', 'vegetation', 'ecstasy', 'theater'] },
   { name: 'Kek', origin: 'Egypt', domain: ['primordial darkness', 'chaos'] },
@@ -107,6 +32,11 @@ function random(range) {
 
 // Resolver
 const root = {
+  addGod: ({name, origin, domain}) => {
+    const god = { name, origin, domain }
+    godList.push(god)
+    return god
+  },
   getAbout: () => {
     return { message: 'Hello World' }
   },
@@ -131,8 +61,8 @@ const root = {
   getCount: ({type}) => {
     return { type: type , count: types[type].length }
   },
-  getGod: ({index}) => {
-    return godList[index]
+  getGod: ({id}) => {
+    return godList[id]
   },
   getGodByRegion:({region}) => {
     return godList[regions[region]]
@@ -173,6 +103,29 @@ const root = {
     const minutes = now.getMinutes()
     const seconds = now.getSeconds()
     return { hour: hours, minute: minutes, second: seconds }
+  },
+  updateGod: ({ id, name, origin, domain }) => {
+    const god = godList[id]
+
+    if (god === undefined) {
+      return null
+    }
+
+    god.name = name || god.name
+    god.origin = origin || god.origin
+
+    // maybe this is more legible
+    // if (domain) {
+    //   god.domain = god.domain ? [...god.domain, ...domain] : [...domain]
+    // }
+
+    god.domain = domain ?
+      (god.domain ? [...god.domain, ...domain] : [...domain]) :
+      (god.domain ? god.domain : null)
+
+    god.domain = god.domain
+
+    return god
   }
 }
 
@@ -188,5 +141,5 @@ app.use('/graphql', graphqlHTTP({
 // Start server
 const port = 4000
 app.listen(port, () => {
-  console.log(`Running on post ${port}`)
+  console.log(`Running on port ${port}: http://localhost:4000/graphql`)
 })
