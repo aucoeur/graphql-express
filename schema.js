@@ -90,6 +90,7 @@ const mutations = `
   type Mutation {
     addGod(name: String!, origin: String, domain: [String!]) : God!
     updateGod(id: Int!, name: String, origin: String, domain: [String!]) : God!
+    deleteGod(id: Int!) : God!
   }
 `
 

@@ -126,7 +126,17 @@ const root = {
     god.domain = god.domain
 
     return god
-  }
+  },
+  deleteGod: ({id}) => {
+    const god = godList[id]
+
+    if (god === undefined) {
+      return null
+    }
+    // .splice(index, n) n is number of items starting from index
+    godList.splice(id, 1)
+    return god
+  },
 }
 
 const app = express()
